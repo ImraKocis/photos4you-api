@@ -1,10 +1,12 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { AuthDto } from './dto/auth.dto';
+import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { JwtPayload } from './interface/payload.interface';
+import { SubscriptionRole } from '@prisma/client';
 
 //https://www.youtube.com/watch?v=uAKzFhE3rxU
 @Injectable()
@@ -28,7 +30,19 @@ export class AuthService {
           createdAt: true,
         },
       });
-      return this.signToken(user.id, user.email, user.createdAt);
+
+      const uploadSizeId = await this.getUploadSize(dto.subscription);
+      const dailyLimitId = await this.getDailyLimit(dto.subscription);
+
+      await this.prisma.subscription.create({
+        data: {
+          name: dto.subscription,
+          userId: user.id,
+          uploadSizeId: uploadSizeId,
+          dailyLimitId: dailyLimitId,
+        },
+      });
+      return this.signToken({ sub: user.id, email: user.email });
     } catch (e) {
       if (e instanceof PrismaClientKnownRequestError) {
         if (e.code === 'P2002')
@@ -49,27 +63,49 @@ export class AuthService {
     const passwordMatches = await argon.verify(user.passwordHash, dto.password);
     if (!passwordMatches) throw new ForbiddenException('incorrect credentials');
 
-    return this.signToken(user.id, user.email, user.createdAt);
+    return this.signToken({ sub: user.id, email: user.email });
   }
 
   async signToken(
-    userId: number,
-    email: string,
-    createdAt: Date
-  ): Promise<{ access_token: string; userId: number }> {
-    const payload = {
-      sub: userId,
-      email,
-      createdAt,
-    };
-    const access_token = await this.jwt.signAsync(payload, {
+    payload: JwtPayload
+  ): Promise<{ token: string; userId: number }> {
+    const token = await this.jwt.signAsync(payload, {
       expiresIn: '30m',
       secret: this.config.get('JWT_SECRET'),
     });
 
     return {
-      access_token,
-      userId,
+      token,
+      userId: payload.sub,
     };
+  }
+
+  async getToken(payload: JwtPayload): Promise<string> {
+    return await this.jwt.signAsync(payload, {
+      secret: this.config.get('JWT_SECRET'),
+      expiresIn: '30m',
+    });
+  }
+
+  async getUploadSize(subscription: SubscriptionRole): Promise<number> {
+    const size = await this.prisma.uploadSize.findFirst({
+      where: {
+        subscriptionName: subscription,
+      },
+      select: { id: true },
+    });
+    return size.id;
+  }
+
+  async getDailyLimit(subscription: SubscriptionRole): Promise<number> {
+    const limit = await this.prisma.dailyLimit.findFirst({
+      where: {
+        subscriptionName: subscription,
+      },
+      select: {
+        id: true,
+      },
+    });
+    return limit.id;
   }
 }

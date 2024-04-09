@@ -11,16 +11,18 @@ datasource db {
 }
 
 model User {
-  id           Int              @id @default(autoincrement())
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  email        String           @unique
-  passwordHash String
-  firstName    String?
-  lastName     String?
-  role         Role             @default(USER)
-  subscription SubscriptionRole @default(FREE)
-  posts        Post[]
+  id                     Int           @id @default(autoincrement())
+  provider               Provider      @default(EMAIL)
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  email                  String        @unique
+  passwordHash           String?
+  firstName              String?
+  lastName               String?
+  role                   Role          @default(USER)
+  posts                  Post[]
+  subscription           Subscription?
+  lastSubscriptionChange DateTime?
 
   @@map("users")
 }
@@ -30,12 +32,89 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   description String?  @db.VarChar(255)
-  hashtags    String[]
-  images      String[]
-  author      User     @relation(fields: [authorId], references: [id])
-  authorId    Int
+  images      Image[]
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
 
   @@map("posts")
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  data      String
+  hashtags  String[]
+  Post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+
+  @@map("images")
+}
+
+model Subscription {
+  id        Int              @id @default(autoincrement())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  name      SubscriptionRole @default(FREE)
+  validFrom DateTime         @default(now())
+  isExpired Boolean          @default(false)
+  expired   DateTime?
+
+  user   User @relation(fields: [userId], references: [id])
+  userId Int  @unique
+
+  UploadSize   UploadSize? @relation(fields: [uploadSizeId], references: [id])
+  uploadSizeId Int?
+
+  DailyLimit   DailyLimit? @relation(fields: [dailyLimitId], references: [id])
+  dailyLimitId Int?
+
+  @@map("subscriptions")
+}
+
+model UploadSize {
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  size             Float
+  subscriptions    Subscription[]
+  subscriptionName SubscriptionRole @default(FREE)
+
+  @@map("upload_sizes")
+}
+
+model DailyLimit {
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  limit            Int
+  subscriptions    Subscription[]
+  subscriptionName SubscriptionRole @default(FREE)
+
+  @@map("daily_limits")
+}
+
+model Hardware {
+  id     Int      @id @default(autoincrement())
+  stock  Int?     @default(0)
+  name   String?  @db.VarChar(255)
+  price  Float?
+  type   Type?
+  code   String?
+  Review Review[]
+
+  @@map("hardvare")
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  hardwareId Int
+  hardware   Hardware @relation(fields: [hardwareId], references: [id], onDelete: Cascade)
+  rating     Float    @default(0.0)
+  title      String?  @db.VarChar(255)
+  text       String?  @db.VarChar(255)
+
+  @@map("reviews")
 }
 
 enum Role {
@@ -47,4 +126,17 @@ enum SubscriptionRole {
   FREE
   PRO
   GOLD
+}
+
+enum Type {
+  CPU
+  GPU
+  SDD
+  HDD
+}
+
+enum Provider {
+  GOOGLE
+  GITHUB
+  EMAIL
 }
