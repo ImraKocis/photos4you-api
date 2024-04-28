@@ -1,17 +1,41 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { SubscriptionRole } from '@prisma/client';
+import { Provider, SubscriptionRole } from '@prisma/client';
 
 export class AuthDto {
-  // user
   @IsEmail()
   @IsNotEmpty()
   email: string;
+
   @IsString()
   @IsNotEmpty()
   password: string;
+}
 
+export class AuthRegisterDto extends AuthDto {
   // subscription
   @IsEnum(SubscriptionRole)
   @IsNotEmpty()
   subscription: SubscriptionRole;
+
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
+}
+
+export class AuthWithProviderDto {
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+  @IsEnum(Provider)
+  @IsNotEmpty()
+  provider: Provider;
+  @IsString()
+  @IsNotEmpty()
+  firstName: string;
+  @IsString()
+  @IsNotEmpty()
+  lastName: string;
 }

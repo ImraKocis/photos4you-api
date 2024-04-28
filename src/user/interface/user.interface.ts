@@ -15,7 +15,14 @@ export interface UserModal {
 
 export interface UserCreateModal {
   email: string;
-  provider: Provider;
   firstName: string;
   lastName: string;
+  passwordHash?: string;
+  provider?: Provider;
+}
+
+export interface UserCreateReturnModal {
+  id: number;
+  createdAt: Date;
+  email: string;
 }

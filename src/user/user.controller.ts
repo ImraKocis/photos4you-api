@@ -3,9 +3,9 @@ import { JwtGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
-import { UserModal } from './interface/user.interface';
+import { UserModal } from './interface';
 
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
   @UseGuards(JwtGuard)

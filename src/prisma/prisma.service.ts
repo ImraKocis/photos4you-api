@@ -13,4 +13,10 @@ export class PrismaService extends PrismaClient {
       },
     });
   }
+
+  public exclude<T, Key extends keyof T>(entry: T, keys: Key[]): Omit<T, Key> {
+    return Object.fromEntries(
+      Object.entries(entry).filter(([key]) => !keys.includes(key as Key))
+    ) as Omit<T, Key>;
+  }
 }
