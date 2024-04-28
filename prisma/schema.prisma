@@ -17,6 +17,7 @@ model User {
   updatedAt              DateTime      @updatedAt
   email                  String        @unique
   passwordHash           String?
+  hashedRt               String?
   firstName              String?
   lastName               String?
   role                   Role          @default(USER)
@@ -32,8 +33,9 @@ model Post {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   description String?  @db.VarChar(255)
+  hashtags    String[]
   images      Image[]
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
 
   @@map("posts")
@@ -44,8 +46,7 @@ model Image {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   data      String
-  hashtags  String[]
-  Post      Post?    @relation(fields: [postId], references: [id])
+  Post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int?
 
   @@map("images")
@@ -60,7 +61,7 @@ model Subscription {
   isExpired Boolean          @default(false)
   expired   DateTime?
 
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int  @unique
 
   UploadSize   UploadSize? @relation(fields: [uploadSizeId], references: [id])
@@ -92,6 +93,17 @@ model DailyLimit {
   subscriptionName SubscriptionRole @default(FREE)
 
   @@map("daily_limits")
+}
+
+model Log {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  action      String
+  userId      Int?
+  description String?
+  role        Role?
+
+  @@map("logs")
 }
 
 model Hardware {

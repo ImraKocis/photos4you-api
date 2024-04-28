@@ -1,20 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserCreateModal, UserModal } from './interface/user.interface';
+import { UserCreateModal, UserCreateReturnModal, UserModal } from './interface';
 import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
-
-  private exclude<User, Key extends keyof User>(
-    user: User,
-    keys: Key[]
-  ): Omit<User, Key> {
-    return Object.fromEntries(
-      Object.entries(user).filter(([key]) => !keys.includes(key as Key))
-    ) as Omit<User, Key>;
-  }
 
   async userByEmail(email: string): Promise<UserModal | null> {
     try {
@@ -24,7 +16,7 @@ export class UserService {
         },
       });
 
-      return this.exclude(user, ['passwordHash']);
+      return this.prisma.exclude(user, ['passwordHash']);
     } catch (e) {
       return null;
       // throw new NotFoundException('User dose not exists');
@@ -36,21 +28,28 @@ export class UserService {
     return !!user;
   }
 
-  async createUserWithProvider(
-    data: UserCreateModal
-  ): Promise<UserModal | null> {
+  async createUser(data: UserCreateModal): Promise<UserCreateReturnModal> {
     try {
-      const user = await this.prisma.user.create({
+      return this.prisma.user.create({
         data: {
           email: data.email,
           provider: data.provider,
           firstName: data.firstName,
           lastName: data.lastName,
+          passwordHash: data.passwordHash,
+        },
+        select: {
+          id: true,
+          email: true,
+          createdAt: true,
         },
       });
-      return this.exclude(user, ['passwordHash']);
-    } catch {
-      return null;
+    } catch (e) {
+      if (e instanceof PrismaClientKnownRequestError) {
+        if (e.code === 'P2002')
+          throw new ForbiddenException('Email already exists');
+      }
+      throw e;
     }
   }
 
@@ -61,6 +60,6 @@ export class UserService {
       where: id,
       include: { posts: true, subscription: true },
     });
-    return this.exclude(user, ['passwordHash']);
+    return this.prisma.exclude(user, ['passwordHash']);
   }
 }
