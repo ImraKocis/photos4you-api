@@ -1,9 +1,20 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  Param,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtGuard } from '../auth/guard';
 import { GetUser } from '../auth/decorator';
 import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { UserModal } from './interface';
+import { UserUpdatePersonalDataDto, UserUpdateSubscriptionDto } from './dto';
 
 @Controller('user')
 export class UserController {
@@ -22,5 +33,29 @@ export class UserController {
   @Get('email')
   getUserByEmail(@Query() data: { email: string }) {
     return this.userService.userByEmail(data.email);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('update/personal')
+  updateUserPersonalData(
+    @Body() data: UserUpdatePersonalDataDto,
+    @Req() req: any
+  ): Promise<UserModal | null> {
+    const user: UserModal = req.user;
+    if (user.id.toString() === data.id || user.role === 'ADMIN')
+      return this.userService.updatePersonalData(data);
+    throw new ForbiddenException('Forbidden action');
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch('update/subscription')
+  updateUserSubscription(
+    @Body() data: UserUpdateSubscriptionDto,
+    @Req() req: any
+  ): Promise<UserModal | null> {
+    const user: UserModal = req.user;
+    if (user.id.toString() === data.id || user.role === 'ADMIN')
+      return this.userService.updateUserSubscription(data);
+    throw new ForbiddenException('Forbidden action');
   }
 }

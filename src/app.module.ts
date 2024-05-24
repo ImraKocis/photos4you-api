@@ -11,6 +11,10 @@ import { DailyLimitModule } from './daily_limit/daily_limit.module';
 import { UploadSizeModule } from './upload_size/upload_size.module';
 import { ImageModule } from './image/image.module';
 import { ApiLogsModule } from './api_logs/api_logs.module';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingInterceptor } from './logging.interceptor';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -26,6 +30,14 @@ import { ApiLogsModule } from './api_logs/api_logs.module';
     UploadSizeModule,
     ImageModule,
     ApiLogsModule,
+    PrometheusModule.register(),
+    CacheModule.register({ isGlobal: true }),
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
   ],
 })
 export class AppModule {}

@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -15,33 +16,13 @@ import { UserService } from '../user/user.service';
 import { TokenReturnInterface } from './interface';
 import { RtGuard } from './guard/rt.guard';
 import { GetCurrentUserId, GetCurrentUser, Public } from './decorator';
-import { Provider } from '@prisma/client';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService
   ) {}
-
-  private async providerCallback(
-    req: any,
-    provider: Provider
-  ): Promise<TokenReturnInterface> {
-    const user = await this.userService.userByEmail(req.user.email);
-    if (!user) {
-      return await this.authService.registerWithProvider({
-        provider: provider,
-        email: req.user.email,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-      });
-    }
-    return await this.authService.signToken({
-      sub: user.id,
-      email: user.email,
-    });
-  }
 
   @Post('register')
   register(@Body() dto: AuthRegisterDto) {
@@ -65,23 +46,55 @@ export class AuthController {
     return this.authService.refreshTokens(userId, refreshToken);
   }
 
-  @UseGuards(GoogleGuard)
-  @Get('google/login')
-  async googleLogin() {}
+  @Post('google/login')
+  async googleLogin(@Req() req: any): Promise<TokenReturnInterface> {
+    const data = await this.authService.googleLogin(req);
+    const user = await this.userService.userByEmail(data.email);
+    if (!user) {
+      return await this.authService.registerWithProvider({
+        provider: 'GOOGLE',
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        picture: data.picture,
+      });
+    }
+    return await this.authService.signToken({
+      sub: user.id,
+      email: user.email,
+    });
+  }
 
   @UseGuards(GoogleGuard)
-  @Get('google/callback')
-  async googleCallback(@Req() req: any): Promise<TokenReturnInterface> {
-    return this.providerCallback(req, 'GOOGLE');
+  @Get('callback/google')
+  async googleCallback(@Req() req: any, @Res() res: any): Promise<void> {
+    return await this.authService.googleCache(req, res);
+  }
+
+  // @UseGuards(GithubGuard)
+  @Post('github/login')
+  async githubLogin(@Req() req: any): Promise<TokenReturnInterface> {
+    const data = await this.authService.githubLogin(req);
+    const user = await this.userService.userByEmail(data.email);
+    if (!user) {
+      return await this.authService.registerWithProvider({
+        provider: 'GITHUB',
+        email: data.email,
+        firstName: data.fullName,
+        lastName: data.lastName,
+      });
+    }
+
+    return await this.authService.signToken({
+      sub: user.id,
+      email: user.email,
+    });
   }
 
   @UseGuards(GithubGuard)
-  @Get('github/login')
-  async githubLogin() {}
-
-  @UseGuards(GithubGuard)
-  @Get('github/callback')
-  async githubCallback(@Req() req: any) {
-    return this.providerCallback(req, 'GITHUB');
+  @Get('callback/github')
+  async githubCallback(@Req() req: any, @Res() res: any) {
+    // return this.providerCallback(req, 'GITHUB');
+    return await this.authService.githubCache(req, res);
   }
 }

@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Subscription } from '@prisma/client';
-import { CreateSubscriptionInterface } from './interface';
+import { CreateSubscriptionInterface, UpdateInterface } from './interface';
 import { ApiLogsService } from '../api_logs/api_logs.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class SubscriptionService {
@@ -27,5 +28,24 @@ export class SubscriptionService {
     });
 
     return subscription;
+  }
+
+  async update(data: UpdateInterface): Promise<Subscription> {
+    const now = new Date();
+    const oneDay = 1000 * 3600 * 24;
+    const validFrom = now.getTime() + oneDay;
+    console.log('valid from', new Date(validFrom));
+    return this.prismaService.subscription.update({
+      where: {
+        id: Number(data.id),
+      },
+      data: {
+        dailyLimitId: data.dailyLimitId,
+        uploadSizeId: data.uploadSizeId,
+        name: data.newSubscriptionName,
+        odlSubscription: data.oldSubscriptionName,
+        validFrom: new Date(validFrom),
+      },
+    });
   }
 }

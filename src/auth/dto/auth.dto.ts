@@ -1,4 +1,10 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 import { Provider, SubscriptionRole } from '@prisma/client';
 
 export class AuthDto {
@@ -38,4 +44,7 @@ export class AuthWithProviderDto {
   @IsString()
   @IsNotEmpty()
   lastName: string;
+  @IsString()
+  @IsOptional()
+  picture?: string;
 }

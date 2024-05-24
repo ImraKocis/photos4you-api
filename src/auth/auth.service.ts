@@ -1,17 +1,29 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto, AuthRegisterDto, AuthWithProviderDto } from './dto';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JwtPayload } from './interface';
+import {
+  GithubProfile,
+  GoogleProfile,
+  JwtPayload,
+  TokenReturnInterface,
+} from './interface';
 import { SubscriptionRole } from '@prisma/client';
-import { TokenReturnInterface } from './interface';
 import { UserService } from '../user/user.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 import { DailyLimitService } from '../daily_limit/daily_limit.service';
 import { UploadSizeService } from '../upload_size/upload_size.service';
 import { ApiLogsService } from '../api_logs/api_logs.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { validate as uuidValidate } from 'uuid';
 
 //https://www.youtube.com/watch?v=uAKzFhE3rxU
 @Injectable()
@@ -24,9 +36,19 @@ export class AuthService {
     private subscriptionService: SubscriptionService,
     private dailyLimitService: DailyLimitService,
     private uploadSizeService: UploadSizeService,
-    private logService: ApiLogsService
+    private logService: ApiLogsService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
   async register(dto: AuthRegisterDto): Promise<TokenReturnInterface> {
+    const userByEmail = await this.userService.userByEmail(dto.email);
+    //todo: remove error messages on backend
+    if (userByEmail)
+      return {
+        id: 0,
+        refreshToken: '',
+        token: '',
+        ok: false,
+      };
     const passwordHash = await argon.hash(dto.password);
     const subscriptionData = await this.getSubscriptionData(dto.subscription);
 
@@ -108,7 +130,7 @@ export class AuthService {
       token,
       refreshToken,
       id: payload.sub,
-      email: payload.email,
+      ok: true,
     };
   }
 
@@ -154,5 +176,40 @@ export class AuthService {
     const limit = await this.dailyLimitService.getId(subscription);
 
     return { size, limit };
+  }
+
+  async googleCache(req: any, res: any) {
+    const userTempId = req.query['state'];
+    await this.cacheManager.set(`google_user_${userTempId}`, req.user, 20000);
+    console.log('google cache', req.user);
+    res.send('<script>window.close()</script>');
+  }
+
+  async githubCache(req: any, res: any) {
+    const userTempId = req.query['state'];
+    console.log('github cache state', userTempId);
+    await this.cacheManager.set(`github_user_${userTempId}`, req.user, 100000);
+    console.log('github cache', req.user);
+    res.send('<script>window.close()</script>');
+  }
+
+  async googleLogin(req: any): Promise<GoogleProfile> {
+    const auth: string = req.get('Authorization');
+    if (!auth) throw new UnauthorizedException();
+
+    const userTempId = auth.replace('Bearer ', '');
+    if (!uuidValidate(userTempId)) throw new UnauthorizedException();
+
+    return await this.cacheManager.get(`google_user_${userTempId}`);
+  }
+
+  async githubLogin(req: any): Promise<GithubProfile> {
+    const auth: string = req.get('Authorization');
+    if (!auth) throw new UnauthorizedException();
+
+    const userTempId = auth.replace('Bearer ', '');
+    if (!uuidValidate(userTempId)) throw new UnauthorizedException();
+
+    return await this.cacheManager.get(`github_user_${userTempId}`);
   }
 }

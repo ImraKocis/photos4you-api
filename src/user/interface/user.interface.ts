@@ -19,6 +19,7 @@ export interface UserCreateModal {
   lastName: string;
   passwordHash?: string;
   provider?: Provider;
+  picture?: string;
 }
 
 export interface UserCreateReturnModal {
