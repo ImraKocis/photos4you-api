@@ -14,19 +14,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  authorizationParams(): { [key: string]: string } {
-    return {
-      access_type: 'offline',
-      prompt: 'consent',
-    };
-  }
+  // authorizationParams(): { [key: string]: string } {
+  //   return {
+  //     access_type: 'offline',
+  //     prompt: 'consent',
+  //   };
+  // }
 
   async validate(
-    _access_token: string,
-    _refresh_token: string,
+    request: any,
+    access_token: string,
     profile: Profile,
     done: VerifyCallback
   ): Promise<any> {
+    // console.log('google request', request, profile);
     const { id, name, emails, photos } = profile;
 
     const user = {

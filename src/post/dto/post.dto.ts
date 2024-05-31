@@ -2,10 +2,16 @@ import {
   ArrayMinSize,
   IsArray,
   IsDate,
+  IsDefined,
   IsNotEmpty,
+  IsNotEmptyObject,
+  IsObject,
   IsOptional,
   IsString,
-} from 'class-validator';
+  ValidateNested,
+} from "class-validator";
+import { ImageDataDto } from "../../image/dto";
+import { Type } from "class-transformer";
 
 export class PostCreateDto {
   // required
@@ -13,20 +19,22 @@ export class PostCreateDto {
   @IsNotEmpty()
   userId: string;
 
+  @IsDefined()
+  @IsObject()
+  @IsNotEmptyObject()
+  @ValidateNested()
+  @Type(() => ImageDataDto)
+  image: ImageDataDto;
+
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  images: string[];
+  hashtags: string[];
 
   // optional
   @IsString()
   @IsOptional()
   description?: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  hashtags?: string[];
 }
 
 export class PostUpdateDto {
@@ -43,7 +51,7 @@ export class PostUpdateDto {
 export class PostFindDto {
   @IsString()
   @IsOptional()
-  description?: string;
+  size?: string;
 
   @IsString()
   @IsOptional()
@@ -51,11 +59,7 @@ export class PostFindDto {
 
   @IsString()
   @IsOptional()
-  firstName?: string;
-
-  @IsString()
-  @IsOptional()
-  lastName?: string;
+  fullName?: string;
 
   @IsDate()
   @IsOptional()

@@ -1,2 +1,1 @@
-// export * from './post.interface';
-//TODO
+export * from './post.interface';

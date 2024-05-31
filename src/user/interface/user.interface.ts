@@ -1,4 +1,4 @@
-import { Post, Provider, Role, Subscription } from '@prisma/client';
+import { Post, Provider, Role, Subscription } from "@prisma/client";
 
 export interface UserModal {
   id: number;
@@ -13,12 +13,18 @@ export interface UserModal {
   lastSubscriptionChange?: Date;
 }
 
+export interface UserDeletedModal extends UserModal {
+  passwordHash: string;
+  hashedRt: string;
+}
+
 export interface UserCreateModal {
   email: string;
   firstName: string;
   lastName: string;
   passwordHash?: string;
   provider?: Provider;
+  picture?: string;
 }
 
 export interface UserCreateReturnModal {

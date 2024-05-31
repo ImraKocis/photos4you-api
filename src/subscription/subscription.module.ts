@@ -3,7 +3,7 @@ import { SubscriptionController } from './subscription.controller';
 import { SubscriptionService } from './subscription.service';
 
 @Module({
-  controllers: [SubscriptionController],
   providers: [SubscriptionService],
+  controllers: [SubscriptionController],
 })
 export class SubscriptionModule {}

@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { Subscription } from '@prisma/client';
-import { CreateSubscriptionInterface } from './interface';
-import { ApiLogsService } from '../api_logs/api_logs.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { Subscription } from "@prisma/client";
+import { CreateSubscriptionInterface, UpdateInterface } from "./interface";
+import { ApiLogsService } from "../api_logs/api_logs.service";
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     private prismaService: PrismaService,
-    private logService: ApiLogsService
+    private logService: ApiLogsService,
   ) {}
 
   async create(data: CreateSubscriptionInterface): Promise<Subscription> {
@@ -22,10 +22,37 @@ export class SubscriptionService {
     });
 
     await this.logService.createLog({
-      action: 'Create subscription',
+      action: "Create subscription",
       description: `Created ${data.name} subscription for user ${data.userId}`,
     });
 
     return subscription;
+  }
+
+  async update(data: UpdateInterface): Promise<Subscription> {
+    const now = new Date();
+    const oneDay = 1000 * 3600 * 24;
+    const validFrom = now.getTime() + oneDay;
+    console.log("valid from", new Date(validFrom));
+    return this.prismaService.subscription.update({
+      where: {
+        id: Number(data.id),
+      },
+      data: {
+        dailyLimitId: data.dailyLimitId,
+        uploadSizeId: data.uploadSizeId,
+        name: data.newSubscriptionName,
+        odlSubscription: data.oldSubscriptionName,
+        validFrom: new Date(validFrom),
+      },
+    });
+  }
+
+  async get(id: number): Promise<Subscription> {
+    return this.prismaService.subscription.findUnique({
+      where: {
+        id: id,
+      },
+    });
   }
 }
