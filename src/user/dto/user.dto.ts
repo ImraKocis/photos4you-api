@@ -5,8 +5,8 @@ import {
   IsString,
   MaxLength,
   MinLength,
-} from 'class-validator';
-import { SubscriptionRole } from '@prisma/client';
+} from "class-validator";
+import { Role, SubscriptionRole } from "@prisma/client";
 
 export class UserUpdatePersonalDataDto {
   @IsString()
@@ -56,4 +56,14 @@ export class UserUpdateSubscriptionDto {
   @IsEnum(SubscriptionRole)
   @IsNotEmpty()
   odlSubscriptionName: SubscriptionRole;
+}
+
+export class UserUpdateRoleDto {
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @IsEnum(Role)
+  @IsNotEmpty()
+  role: Role;
 }

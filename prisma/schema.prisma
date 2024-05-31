@@ -35,7 +35,7 @@ model Post {
   updatedAt   DateTime @updatedAt
   description String?  @db.VarChar(255)
   hashtags    String[]
-  images      Image[]
+  image       Image?
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
 
@@ -46,9 +46,10 @@ model Image {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  data      String
-  Post      Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    Int?
+  url       String
+  size      Float
+  Post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int      @unique
 
   @@map("images")
 }
