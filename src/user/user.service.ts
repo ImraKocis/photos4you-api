@@ -13,6 +13,7 @@ import * as argon from "argon2";
 import { DailyLimitService } from "../daily_limit/daily_limit.service";
 import { UploadSizeService } from "../upload_size/upload_size.service";
 import { SubscriptionService } from "../subscription/subscription.service";
+import { ApiLogsService } from "../api_logs/api_logs.service";
 
 @Injectable()
 export class UserService {
@@ -21,6 +22,7 @@ export class UserService {
     private dailyLimitService: DailyLimitService,
     private uploadSizeService: UploadSizeService,
     private subscriptionService: SubscriptionService,
+    private logService: ApiLogsService,
   ) {}
 
   async userByEmail(email: string): Promise<UserModal | null> {
@@ -34,18 +36,16 @@ export class UserService {
       return this.prisma.exclude(user, ["passwordHash"]);
     } catch (e) {
       return null;
-      // throw new NotFoundException('User dose not exists');
     }
-  }
-
-  async checkIfUserExists(email: string): Promise<boolean> {
-    const user = await this.userByEmail(email);
-    return !!user;
   }
 
   async createUser(data: UserCreateModal): Promise<UserCreateReturnModal> {
     try {
-      return this.prisma.user.create({
+      await this.logService.createLog({
+        action: "User created",
+        description: `User created with email ${data.email}`,
+      });
+      return await this.prisma.user.create({
         data: {
           email: data.email,
           provider: data.provider,
@@ -91,7 +91,11 @@ export class UserService {
         lastName: dto.lastName,
       },
     });
-
+    await this.logService.createLog({
+      action: "User updated",
+      description: `User with ID: ${dto.id} personal data updated`,
+      userId: Number(dto.id),
+    });
     return this.prisma.exclude(user, ["passwordHash"]);
   }
 
@@ -124,17 +128,20 @@ export class UserService {
     const uploadSizes = await this.uploadSizeService.getAll();
     const dailyLimits = await this.dailyLimitService.getAll();
 
-    const newSubscription = await this.subscriptionService.update({
-      id: Number(data.subscriptionId),
-      uploadSizeId: uploadSizes.find(
-        (element) => element.subscriptionName == data.subscriptionName,
-      ).id,
-      dailyLimitId: dailyLimits.find(
-        (element) => element.subscriptionName == data.subscriptionName,
-      ).id,
-      oldSubscriptionName: data.odlSubscriptionName,
-      newSubscriptionName: data.subscriptionName,
-    });
+    const newSubscription = await this.subscriptionService.update(
+      {
+        id: Number(data.subscriptionId),
+        uploadSizeId: uploadSizes.find(
+          (element) => element.subscriptionName == data.subscriptionName,
+        ).id,
+        dailyLimitId: dailyLimits.find(
+          (element) => element.subscriptionName == data.subscriptionName,
+        ).id,
+        oldSubscriptionName: data.odlSubscriptionName,
+        newSubscriptionName: data.subscriptionName,
+      },
+      Number(data.id),
+    );
 
     const user = await this.prisma.user.update({
       where: {
@@ -160,6 +167,11 @@ export class UserService {
   }
 
   async updateRole(dto: UserUpdateRoleDto): Promise<UserModal> {
+    await this.logService.createLog({
+      action: "User role updated",
+      description: `User with ID: ${dto.id} role updated to ${dto.role}`,
+      userId: Number(dto.id),
+    });
     const user = await this.prisma.user.update({
       where: {
         id: Number(dto.id),
@@ -174,6 +186,11 @@ export class UserService {
 
   async deleteUser(id: number): Promise<boolean | null> {
     try {
+      await this.logService.createLog({
+        action: "User deleted",
+        description: `User with ID: ${id} deleted`,
+        userId: id,
+      });
       const user = await this.prisma.user.delete({
         where: {
           id: id,

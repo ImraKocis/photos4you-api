@@ -23,17 +23,22 @@ export class SubscriptionService {
 
     await this.logService.createLog({
       action: "Create subscription",
-      description: `Created ${data.name} subscription for user ${data.userId}`,
+      description: `Created ${data.name} subscription`,
+      userId: data.userId,
     });
 
     return subscription;
   }
 
-  async update(data: UpdateInterface): Promise<Subscription> {
+  async update(data: UpdateInterface, userId: number): Promise<Subscription> {
     const now = new Date();
     const oneDay = 1000 * 3600 * 24;
     const validFrom = now.getTime() + oneDay;
-    console.log("valid from", new Date(validFrom));
+    await this.logService.createLog({
+      action: "Update subscription",
+      description: `Updated ${data.oldSubscriptionName} subscription to ${data.newSubscriptionName}`,
+      userId,
+    });
     return this.prismaService.subscription.update({
       where: {
         id: Number(data.id),
@@ -52,6 +57,10 @@ export class SubscriptionService {
     return this.prismaService.subscription.findUnique({
       where: {
         id: id,
+      },
+      include: {
+        DailyLimit: true,
+        UploadSize: true,
       },
     });
   }

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import {ImageCreateDto} from "./dto";
-import {Image} from "@prisma/client";
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
+import { ImageCreateDto } from "./dto";
+import { Image } from "@prisma/client";
 
 @Injectable()
 export class ImageService {
@@ -14,11 +14,11 @@ export class ImageService {
           postId: data.postId,
           url: data.url,
           size: parseFloat(data.size),
-        }
+        },
       });
     } catch (e) {
-      console.log(e);
-      return null
+      console.error(e);
+      return null;
     }
   }
 }

@@ -4,12 +4,14 @@ import { Post } from "@prisma/client";
 import { PostCreateDto, PostFindDto, PostUpdateDto } from "./dto/post.dto";
 import { ImageService } from "../image/image.service";
 import { PostModule } from "./interface";
+import { ApiLogsService } from "../api_logs/api_logs.service";
 
 @Injectable()
 export class PostService {
   constructor(
     private prismaService: PrismaService,
     private imageService: ImageService,
+    private logService: ApiLogsService,
   ) {}
 
   async latest(): Promise<PostModule[] | null> {
@@ -37,20 +39,7 @@ export class PostService {
     });
   }
 
-  async userIdByPost(id: number): Promise<number> {
-    const { userId } = await this.prismaService.post.findUnique({
-      where: {
-        id: id,
-      },
-      select: {
-        userId: true,
-      },
-    });
-    return userId;
-  }
-
   async create(dto: PostCreateDto): Promise<Post | null> {
-    console.log(dto);
     const post = await this.prismaService.post.create({
       data: {
         userId: Number(dto.userId),
@@ -63,6 +52,11 @@ export class PostService {
       ...dto.image,
       postId: post.id,
     });
+
+    await this.logService.createLog({
+      action: "Post created",
+      userId: Number(dto.userId),
+    });
     if (!image) {
       throw new InternalServerErrorException("Failed to create image");
     }
@@ -70,7 +64,16 @@ export class PostService {
     return post;
   }
 
-  async update(id: number, dto: PostUpdateDto): Promise<Post | null> {
+  async update(
+    id: number,
+    dto: PostUpdateDto,
+    userId: number,
+  ): Promise<Post | null> {
+    await this.logService.createLog({
+      action: "Post updated",
+      description: `Post with ID: ${id} updated`,
+      userId,
+    });
     return this.prismaService.post.update({
       where: {
         id: Number(id),
@@ -133,7 +136,12 @@ export class PostService {
     return Array.from(new Set(posts.flatMap((post) => post.hashtags)));
   }
 
-  async delete(id: number): Promise<boolean | null> {
+  async delete(id: number, userId: number): Promise<boolean | null> {
+    await this.logService.createLog({
+      action: "Post deleted",
+      description: `Post with ID: ${id} deleted`,
+      userId,
+    });
     const post = await this.prismaService.post.delete({
       where: {
         id: id,
