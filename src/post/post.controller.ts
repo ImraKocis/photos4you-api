@@ -35,14 +35,12 @@ export class PostController {
   async getUserPosts(
     @GetCurrentUserId() userId: number,
   ): Promise<PostModule[] | null> {
-    console.log("user id", userId);
     return this.postService.byUser(userId);
   }
 
   @UseGuards(JwtGuard)
   @Post("create")
   async createPost(@Body() data: PostCreateDto): Promise<PostOnlyModule> {
-    console.log("post controller", data);
     return this.postService.create(data);
   }
 
@@ -54,7 +52,7 @@ export class PostController {
     id: string,
     @Body() data: PostUpdateDto,
   ): Promise<PostOnlyModule> {
-    return this.postService.update(Number(id), data);
+    return this.postService.update(Number(id), data, userId);
   }
 
   @Get("find")
@@ -79,7 +77,10 @@ export class PostController {
 
   @UseGuards(JwtGuard)
   @Delete(":id")
-  async deletePost(@Param("id") id: string): Promise<boolean> {
-    return this.postService.delete(Number(id));
+  async deletePost(
+    @Param("id") id: string,
+    @GetCurrentUserId() userId: number,
+  ): Promise<boolean> {
+    return this.postService.delete(Number(id), userId);
   }
 }

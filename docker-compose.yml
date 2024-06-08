@@ -8,3 +8,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123
       POSTGRES_DB: photos4you
+
+  backend:
+    build: .  # Build the Docker image using the Dockerfile in the current directory
+    ports:
+      - "3111:3111"  # Forward the container's port 3111 to the host machine's port 3111 for accessing the backend service
+    depends_on:
+      - dev-db  # Ensure that the backend service starts after the database service is up and running
+    env_file:
+      - .env  # Load environment variables from the .env file in the current directory
