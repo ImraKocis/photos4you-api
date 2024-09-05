@@ -10,10 +10,14 @@ services:
       POSTGRES_DB: photos4you
 
   backend:
-    build: .  # Build the Docker image using the Dockerfile in the current directory
+    image: imra24/photos4you-api:latest
+    restart: always
     ports:
-      - "3111:3111"  # Forward the container's port 3111 to the host machine's port 3111 for accessing the backend service
+      - "3111:3111"
+    environment:
+      DATABASE_URL: postgresql://postgres:123@localhost:5434/photos4you?schema=public
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
-      - dev-db  # Ensure that the backend service starts after the database service is up and running
-    env_file:
-      - .env  # Load environment variables from the .env file in the current directory
+      - dev-db

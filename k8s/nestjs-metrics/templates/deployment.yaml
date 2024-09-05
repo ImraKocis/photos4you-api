@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nestjs-metrics
+  name: nestjs-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nestjs-metrics
+  template:
+    metadata:
+      labels:
+        app: nestjs-metrics
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "3111"
+    spec:
+      containers:
+      - image: imra24/photos4you-api
+        name: photos4you-api
+        ports:
+        - containerPort: 3111
+
