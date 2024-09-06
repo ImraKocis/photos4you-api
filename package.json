@@ -26,7 +26,7 @@
     "pretest:int": "yarn test-db:restart && dotenv -e .env.test -- prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push --force-reset",
     "pretest:unit": "yarn test-db:restart && dotenv -e .env.test -- prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push --force-reset",
     "test:int": "jest -i --no-cache --watch --config jest-int.json",
-    "test:unit": "jest -i --no-cache --watch --config jest-unit.json"
+    "test:unit": "jest --no-cache --watch --config jest-unit.json"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.2.2",
