@@ -24,7 +24,6 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { validate as uuidValidate } from 'uuid';
 
-//https://www.youtube.com/watch?v=uAKzFhE3rxU
 @Injectable()
 export class AuthService {
   constructor(

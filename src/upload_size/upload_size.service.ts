@@ -6,6 +6,25 @@ import { SubscriptionRole, UploadSize } from '@prisma/client';
 export class UploadSizeService {
   constructor(private prismaService: PrismaService) {}
 
+  async createInitial(): Promise<void> {
+    await this.prismaService.uploadSize.createMany({
+      data: [
+        {
+          size: 2,
+          subscriptionName: 'FREE',
+        },
+        {
+          size: 5,
+          subscriptionName: 'PRO',
+        },
+        {
+          size: 10,
+          subscriptionName: 'GOLD',
+        },
+      ],
+    });
+  }
+
   async getAll(): Promise<UploadSize[]> {
     return this.prismaService.uploadSize.findMany();
   }

@@ -1,24 +1,24 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { Post } from "@prisma/client";
-import { PostCreateDto, PostFindDto, PostUpdateDto } from "./dto/post.dto";
-import { ImageService } from "../image/image.service";
-import { PostModule } from "./interface";
-import { ApiLogsService } from "../api_logs/api_logs.service";
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Post } from '@prisma/client';
+import { PostCreateDto, PostFindDto, PostUpdateDto } from './dto/post.dto';
+import { ImageService } from '../image/image.service';
+import { PostModule } from './interface';
+import { ApiLogsService } from '../api_logs/api_logs.service';
 
 @Injectable()
 export class PostService {
   constructor(
     private prismaService: PrismaService,
     private imageService: ImageService,
-    private logService: ApiLogsService,
+    private logService: ApiLogsService
   ) {}
 
   async latest(): Promise<PostModule[] | null> {
     return this.prismaService.post.findMany({
       take: 10,
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
       include: { user: true, image: true },
     });
@@ -54,11 +54,11 @@ export class PostService {
     });
 
     await this.logService.createLog({
-      action: "Post created",
+      action: 'Post created',
       userId: Number(dto.userId),
     });
     if (!image) {
-      throw new InternalServerErrorException("Failed to create image");
+      throw new InternalServerErrorException('Failed to create image');
     }
 
     return post;
@@ -67,10 +67,10 @@ export class PostService {
   async update(
     id: number,
     dto: PostUpdateDto,
-    userId: number,
+    userId: number
   ): Promise<Post | null> {
     await this.logService.createLog({
-      action: "Post updated",
+      action: 'Post updated',
       description: `Post with ID: ${id} updated`,
       userId,
     });
@@ -104,8 +104,8 @@ export class PostService {
             ? {
                 user: {
                   OR: [
-                    { firstName: { contains: fullName, mode: "insensitive" } },
-                    { lastName: { contains: fullName, mode: "insensitive" } },
+                    { firstName: { contains: fullName, mode: 'insensitive' } },
+                    { lastName: { contains: fullName, mode: 'insensitive' } },
                   ],
                 },
               }
@@ -138,7 +138,7 @@ export class PostService {
 
   async delete(id: number, userId: number): Promise<boolean | null> {
     await this.logService.createLog({
-      action: "Post deleted",
+      action: 'Post deleted',
       description: `Post with ID: ${id} deleted`,
       userId,
     });
