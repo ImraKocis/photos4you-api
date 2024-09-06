@@ -19,4 +19,11 @@ export class PrismaService extends PrismaClient {
       Object.entries(entry).filter(([key]) => !keys.includes(key as Key))
     ) as Omit<T, Key>;
   }
+
+  // async cleanDatabase() {
+  //   if (process.env.NODE_ENV === 'production') return;
+  //   const models = Reflect.ownKeys(this).filter((key) => key[0] !== '_');
+  //
+  //   return Promise.all(models.map((modelKey) => this[modelKey].deleteMany()));
+  // }
 }

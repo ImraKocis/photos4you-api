@@ -36,6 +36,7 @@ lerna-debug.log*
 
 # Secrets
 .env
+/.env.test
 
 # Prettier & ESLint
 .prettierrc
