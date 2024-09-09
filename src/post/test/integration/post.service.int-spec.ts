@@ -3,16 +3,16 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PostService } from '../../post.service';
 import { Test } from '@nestjs/testing';
 import * as argon from 'argon2';
-import { AuthService } from '../../../auth/auth.service';
 import { DailyLimitService } from '../../../daily_limit/daily_limit.service';
 import { UploadSizeService } from '../../../upload_size/upload_size.service';
+import { SubscriptionService } from '../../../subscription/subscription.service';
 
 describe('PostService', () => {
   let prisma: PrismaService;
   let postService: PostService;
-  let authService: AuthService;
+  let subscriptionService: SubscriptionService;
   let dailyLimitService: DailyLimitService;
-  let uploadSizeServce: UploadSizeService;
+  let uploadSizeService: UploadSizeService;
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -20,9 +20,9 @@ describe('PostService', () => {
 
     prisma = moduleRef.get(PrismaService);
     postService = moduleRef.get(PostService);
-    authService = moduleRef.get(AuthService);
+    subscriptionService = moduleRef.get(SubscriptionService);
     dailyLimitService = moduleRef.get(DailyLimitService);
-    uploadSizeServce = moduleRef.get(UploadSizeService);
+    uploadSizeService = moduleRef.get(UploadSizeService);
   });
 
   describe('createPost', () => {
@@ -42,7 +42,7 @@ describe('PostService', () => {
     };
     it('should create initial values for daily limit and upload size', async () => {
       await dailyLimitService.createInitial();
-      await uploadSizeServce.createInitial();
+      await uploadSizeService.createInitial();
     });
     it('should create user and subscription', async () => {
       const passwordHash = await argon.hash('password123');
@@ -57,7 +57,8 @@ describe('PostService', () => {
 
       userId = user.id.toString();
 
-      const subscriptionData = await authService.getSubscriptionData('FREE');
+      const subscriptionData =
+        await subscriptionService.getSubscriptionData('FREE');
       await prisma.subscription.create({
         data: {
           name: 'FREE',

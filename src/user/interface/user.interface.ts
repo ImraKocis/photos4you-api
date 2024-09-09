@@ -1,4 +1,4 @@
-import { Post, Provider, Role, Subscription } from "@prisma/client";
+import { Post, Provider, Role, Subscription } from '@prisma/client';
 
 export interface UserModal {
   id: number;
@@ -27,8 +27,30 @@ export interface UserCreateModal {
   picture?: string;
 }
 
+export interface CreateUserWithEmailAndPassword
+  extends CreateUserWithEmailAndPasswordSubType {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface CreateUserWithProvider extends CreateUserWithProviderSubType {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 export interface UserCreateReturnModal {
   id: number;
   createdAt: Date;
   email: string;
 }
+
+type CreateUserWithEmailAndPasswordSubType = {
+  passwordHash: string;
+};
+
+type CreateUserWithProviderSubType = {
+  provider: Provider;
+  picture?: string;
+};

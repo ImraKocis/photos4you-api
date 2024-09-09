@@ -28,6 +28,9 @@
     "test:int": "jest -i --no-cache --watch --config jest-int.json",
     "test:unit": "jest --no-cache --watch --config jest-unit.json"
   },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed/index.ts"
+  },
   "dependencies": {
     "@nestjs/cache-manager": "^2.2.2",
     "@nestjs/common": "^10.0.0",
