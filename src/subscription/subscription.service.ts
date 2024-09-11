@@ -1,14 +1,22 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { Subscription } from "@prisma/client";
-import { CreateSubscriptionInterface, UpdateInterface } from "./interface";
-import { ApiLogsService } from "../api_logs/api_logs.service";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { Subscription, SubscriptionRole } from '@prisma/client';
+import {
+  CreateSubscriptionInterface,
+  SubscriptionData,
+  UpdateInterface,
+} from './interface';
+import { ApiLogsService } from '../api_logs/api_logs.service';
+import { DailyLimitService } from '../daily_limit/daily_limit.service';
+import { UploadSizeService } from '../upload_size/upload_size.service';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     private prismaService: PrismaService,
     private logService: ApiLogsService,
+    private dailyLimitService: DailyLimitService,
+    private uploadSizeService: UploadSizeService
   ) {}
 
   async create(data: CreateSubscriptionInterface): Promise<Subscription> {
@@ -22,7 +30,7 @@ export class SubscriptionService {
     });
 
     await this.logService.createLog({
-      action: "Create subscription",
+      action: 'Create subscription',
       description: `Created ${data.name} subscription`,
       userId: data.userId,
     });
@@ -35,7 +43,7 @@ export class SubscriptionService {
     const oneDay = 1000 * 3600 * 24;
     const validFrom = now.getTime() + oneDay;
     await this.logService.createLog({
-      action: "Update subscription",
+      action: 'Update subscription',
       description: `Updated ${data.oldSubscriptionName} subscription to ${data.newSubscriptionName}`,
       userId,
     });
@@ -63,5 +71,14 @@ export class SubscriptionService {
         UploadSize: true,
       },
     });
+  }
+
+  async getSubscriptionData(
+    subscription: SubscriptionRole
+  ): Promise<SubscriptionData> {
+    const size = await this.uploadSizeService.getId(subscription);
+    const limit = await this.dailyLimitService.getId(subscription);
+
+    return { size, limit };
   }
 }

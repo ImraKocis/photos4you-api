@@ -23,10 +23,12 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "test-db:restart": "docker compose down test-db && docker compose up test-db -d && timeout 1",
-    "pretest:int": "yarn test-db:restart && dotenv -e .env.test -- prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push --force-reset",
-    "pretest:unit": "yarn test-db:restart && dotenv -e .env.test -- prisma migrate reset --force && dotenv -e .env.test -- npx prisma db push --force-reset",
+    "pretest:int": "yarn test-db:restart && dotenv -e .env.test -- prisma migrate reset --force",
     "test:int": "jest -i --no-cache --watch --config jest-int.json",
     "test:unit": "jest --no-cache --watch --config jest-unit.json"
+  },
+  "prisma": {
+    "seed": "ts-node ./prisma/seed/index.ts"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.2.2",
