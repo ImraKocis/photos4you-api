@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { ILoginWithEmailAndPasswordAuthService } from '../interface/auth.service.interfaces';
+import { ILoginWithEmailAndPasswordAuthService } from '../interface';
 import { AuthDto } from '../dto';
 import {
   TokenReturnInterface,

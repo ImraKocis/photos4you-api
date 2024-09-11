@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { SubscriptionRole } from '@prisma/client';
 import { UserModal } from '../user/interface';
 import {
@@ -6,8 +5,10 @@ import {
   SubscriptionData,
 } from '../subscription/interface';
 import { SignTokenPayloadProps, TokenReturnInterface } from './token/interface';
+import { IRegisterAuthAbstract } from './interface';
 
-export abstract class RegisterAuthAbstract {
+// Dependency Inversion Principle (DIP)
+export abstract class RegisterAuthAbstract implements IRegisterAuthAbstract {
   abstract getUserByEmail(email: string): Promise<UserModal | null>;
   abstract createUserSubscription(
     data: CreateSubscriptionInterface
@@ -22,9 +23,4 @@ export abstract class RegisterAuthAbstract {
   abstract getSubscriptionData(
     subscription: SubscriptionRole
   ): Promise<SubscriptionData>;
-}
-
-@Injectable()
-export class AuthService {
-  constructor() {}
 }

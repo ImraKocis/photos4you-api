@@ -9,9 +9,9 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
-} from "class-validator";
-import { ImageDataDto } from "../../image/dto";
-import { Type } from "class-transformer";
+} from 'class-validator';
+import { ImageDataDto } from '../../image/dto';
+import { Type } from 'class-transformer';
 
 export class PostCreateDto {
   // required

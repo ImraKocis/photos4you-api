@@ -9,7 +9,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { AuthDto, AuthRegisterDto } from './dto';
 import { GithubGuard, GoogleGuard } from './guard';
 import { TokenService } from './token/token.service';
@@ -26,7 +25,6 @@ import { GetUserService } from '../user/services';
 @Controller('api/auth')
 export class AuthController {
   constructor(
-    private authService: AuthService,
     private registerWithProviderAuthService: RegisterWithProviderAuthService,
     private registerWithEmailAndPasswordAuthService: RegisterWithEmailAndPasswordAuthService,
     private loginAuthService: LoginAuthService,

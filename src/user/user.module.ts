@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { UploadSizeService } from '../upload_size/upload_size.service';
 import { DailyLimitService } from '../daily_limit/daily_limit.service';
@@ -14,7 +13,6 @@ import {
 
 @Module({
   providers: [
-    UserService,
     GetUserService,
     UpdateUserService,
     UpdateUserSubscriptionUserService,

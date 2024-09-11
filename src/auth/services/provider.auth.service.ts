@@ -1,6 +1,9 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { IProviderAuthService } from '../interface/auth.service.interfaces';
-import { GoogleProfile, GithubProfile } from '../interface';
+import {
+  GoogleProfile,
+  GithubProfile,
+  IProviderAuthService,
+} from '../interface';
 import { validate as uuidValidate } from 'uuid';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IRegisterWithProviderAuthService } from '../interface/auth.service.interfaces';
+import { IRegisterWithProviderAuthService } from '../interface';
 import {
   CreateUserWithProvider,
   UserCreateReturnModal,

@@ -3,16 +3,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { PostService } from '../../post.service';
 import { Test } from '@nestjs/testing';
 import * as argon from 'argon2';
-import { DailyLimitService } from '../../../daily_limit/daily_limit.service';
-import { UploadSizeService } from '../../../upload_size/upload_size.service';
 import { SubscriptionService } from '../../../subscription/subscription.service';
 
 describe('PostService', () => {
   let prisma: PrismaService;
   let postService: PostService;
   let subscriptionService: SubscriptionService;
-  let dailyLimitService: DailyLimitService;
-  let uploadSizeService: UploadSizeService;
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -21,8 +17,6 @@ describe('PostService', () => {
     prisma = moduleRef.get(PrismaService);
     postService = moduleRef.get(PostService);
     subscriptionService = moduleRef.get(SubscriptionService);
-    dailyLimitService = moduleRef.get(DailyLimitService);
-    uploadSizeService = moduleRef.get(UploadSizeService);
   });
 
   describe('createPost', () => {
@@ -40,15 +34,11 @@ describe('PostService', () => {
       hashtags: ['america', 'travel', 'family'],
       image: null,
     };
-    it('should create initial values for daily limit and upload size', async () => {
-      await dailyLimitService.createInitial();
-      await uploadSizeService.createInitial();
-    });
     it('should create user and subscription', async () => {
       const passwordHash = await argon.hash('password123');
       const user = await prisma.user.create({
         data: {
-          email: 'int-test@mail.com',
+          email: 'inttest@gmail.com',
           firstName: 'John',
           lastName: 'Doe',
           passwordHash,

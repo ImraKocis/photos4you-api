@@ -3,7 +3,7 @@ import {
   UserCreateReturnModal,
 } from 'src/user/interface';
 import { TokenReturnInterface } from '../token/interface';
-import { IRegisterWithEmailAndPasswordAuthService } from '../interface/auth.service.interfaces';
+import { IRegisterWithEmailAndPasswordAuthService } from '../interface';
 import { AuthRegisterDto } from '../dto';
 import { Injectable } from '@nestjs/common';
 import { RegisterAuthService } from './register.auth.service';

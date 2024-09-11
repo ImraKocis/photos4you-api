@@ -15,6 +15,7 @@ import { SubscriptionRole } from '@prisma/client';
 import { RegisterAuthAbstract } from '../auth.service';
 import { GetUserService } from '../../user/services';
 
+// Single Responsibility Principle (SRP)
 @Injectable()
 export class RegisterAuthService extends RegisterAuthAbstract {
   constructor(
