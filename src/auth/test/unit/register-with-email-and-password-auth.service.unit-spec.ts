@@ -1,23 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  RegisterAuthService,
-  RegisterWithEmailAndPasswordAuthService,
-} from '../../services';
-import { CreateUserService } from '../../../user/services';
+import { RegisterWithEmailAndPasswordAuthService } from '../../services';
 import { AuthRegisterDto } from '../../dto';
 import * as argon from 'argon2';
+import {
+  IRegisterAuthService,
+  IRegisterWithEmailAndPasswordAuthService,
+} from '../../interface';
+import { ICreateUserService } from '../../../user/interface';
 
 describe('RegisterWithEmailAndPasswordAuthService', () => {
-  let service: RegisterWithEmailAndPasswordAuthService;
-  let registerAuthService: RegisterAuthService;
-  let createUserService: CreateUserService;
+  let service: IRegisterWithEmailAndPasswordAuthService;
+  let registerAuthService: IRegisterAuthService;
+  let createUserService: ICreateUserService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RegisterWithEmailAndPasswordAuthService,
         {
-          provide: RegisterAuthService,
+          provide: IRegisterWithEmailAndPasswordAuthService,
+          useClass: RegisterWithEmailAndPasswordAuthService,
+        },
+        {
+          provide: IRegisterAuthService,
           useValue: {
             getUserByEmail: jest.fn(),
             getSubscriptionData: jest.fn(),
@@ -27,7 +31,7 @@ describe('RegisterWithEmailAndPasswordAuthService', () => {
           },
         },
         {
-          provide: CreateUserService,
+          provide: ICreateUserService,
           useValue: {
             createUser: jest.fn(),
           },
@@ -35,11 +39,12 @@ describe('RegisterWithEmailAndPasswordAuthService', () => {
       ],
     }).compile();
 
-    service = module.get<RegisterWithEmailAndPasswordAuthService>(
-      RegisterWithEmailAndPasswordAuthService
+    service = module.get<IRegisterWithEmailAndPasswordAuthService>(
+      IRegisterWithEmailAndPasswordAuthService
     );
-    registerAuthService = module.get<RegisterAuthService>(RegisterAuthService);
-    createUserService = module.get<CreateUserService>(CreateUserService);
+    registerAuthService =
+      module.get<IRegisterAuthService>(IRegisterAuthService);
+    createUserService = module.get<ICreateUserService>(ICreateUserService);
   });
 
   it('should register a new user successfully', async () => {

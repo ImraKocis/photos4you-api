@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh_token/refresh_token.service';
-import { UserModal } from '../../user/interface';
+import { IGetUserService, UserModal } from '../../user/interface';
 import { SubscriptionService } from '../../subscription/subscription.service';
 import {
   CreateSubscriptionInterface,
@@ -13,16 +13,19 @@ import {
 } from '../token/interface';
 import { SubscriptionRole } from '@prisma/client';
 import { RegisterAuthAbstract } from '../auth.service';
-import { GetUserService } from '../../user/services';
+import { IRegisterAuthService } from '../interface';
 
 // Single Responsibility Principle (SRP)
 @Injectable()
-export class RegisterAuthService extends RegisterAuthAbstract {
+export class RegisterAuthService
+  extends RegisterAuthAbstract
+  implements IRegisterAuthService
+{
   constructor(
     private tokenService: TokenService,
     private refreshTokenService: RefreshTokenService,
-    private getUserService: GetUserService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    @Inject(IGetUserService) private readonly getUserService: IGetUserService
   ) {
     super();
   }

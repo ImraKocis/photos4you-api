@@ -5,10 +5,9 @@ import {
   SubscriptionData,
 } from '../subscription/interface';
 import { SignTokenPayloadProps, TokenReturnInterface } from './token/interface';
-import { IRegisterAuthAbstract } from './interface';
 
 // Dependency Inversion Principle (DIP)
-export abstract class RegisterAuthAbstract implements IRegisterAuthAbstract {
+export abstract class RegisterAuthAbstract {
   abstract getUserByEmail(email: string): Promise<UserModal | null>;
   abstract createUserSubscription(
     data: CreateSubscriptionInterface

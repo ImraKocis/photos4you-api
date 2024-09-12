@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import {
-  GoogleProfile,
   GithubProfile,
+  GoogleProfile,
   IProviderAuthService,
 } from '../interface';
 import { validate as uuidValidate } from 'uuid';

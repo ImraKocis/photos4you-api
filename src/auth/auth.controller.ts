@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Inject,
   Post,
   Req,
   Res,
@@ -15,22 +16,26 @@ import { TokenService } from './token/token.service';
 import { CacheService } from './cache/cache.service';
 import { TokenReturnInterface } from './token/interface';
 import {
-  LoginAuthService,
-  ProviderAuthService,
-  RegisterWithEmailAndPasswordAuthService,
-  RegisterWithProviderAuthService,
-} from './services';
-import { GetUserService } from '../user/services';
+  ILoginWithEmailAndPasswordAuthService,
+  IProviderAuthService,
+  IRegisterWithEmailAndPasswordAuthService,
+  IRegisterWithProviderAuthService,
+} from './interface';
+import { IGetUserService } from '../user/interface';
 
 @Controller('api/auth')
 export class AuthController {
   constructor(
-    private registerWithProviderAuthService: RegisterWithProviderAuthService,
-    private registerWithEmailAndPasswordAuthService: RegisterWithEmailAndPasswordAuthService,
-    private loginAuthService: LoginAuthService,
-    private providerAuthService: ProviderAuthService,
+    @Inject(IRegisterWithProviderAuthService)
+    private readonly registerWithProviderAuthService: IRegisterWithProviderAuthService,
+    @Inject(IRegisterWithEmailAndPasswordAuthService)
+    private readonly registerWithEmailAndPasswordAuthService: IRegisterWithEmailAndPasswordAuthService,
+    @Inject(ILoginWithEmailAndPasswordAuthService)
+    private readonly loginAuthService: ILoginWithEmailAndPasswordAuthService,
+    @Inject(IProviderAuthService)
+    private readonly providerAuthService: IProviderAuthService,
+    @Inject(IGetUserService) private readonly getUserService: IGetUserService,
     private tokenService: TokenService,
-    private getUserService: GetUserService,
     private cacheService: CacheService
   ) {}
 
