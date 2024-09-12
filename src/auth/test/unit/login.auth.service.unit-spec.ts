@@ -2,15 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ForbiddenException } from '@nestjs/common';
 import * as argon from 'argon2';
 import { LoginAuthService } from '../../services';
-import { GetUserService } from '../../../user/services';
 import { TokenService } from '../../token/token.service';
 import { RefreshTokenService } from '../../refresh_token/refresh_token.service';
 import { AuthDto } from '../../dto';
 import { User } from '@prisma/client';
+import { IGetUserService } from '../../../user/interface';
 
 describe('LoginAuthService', () => {
   let service: LoginAuthService;
-  let getUserService: GetUserService;
+  let getUserService: IGetUserService;
   let tokenService: TokenService;
   let refreshTokenService: RefreshTokenService;
 
@@ -19,7 +19,7 @@ describe('LoginAuthService', () => {
       providers: [
         LoginAuthService,
         {
-          provide: GetUserService,
+          provide: IGetUserService,
           useValue: {
             getCriticalUserDataWithEmail: jest.fn(),
           },
@@ -40,7 +40,7 @@ describe('LoginAuthService', () => {
     }).compile();
 
     service = module.get<LoginAuthService>(LoginAuthService);
-    getUserService = module.get<GetUserService>(GetUserService);
+    getUserService = module.get<IGetUserService>(IGetUserService);
     tokenService = module.get<TokenService>(TokenService);
     refreshTokenService = module.get<RefreshTokenService>(RefreshTokenService);
   });

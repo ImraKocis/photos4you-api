@@ -1,21 +1,21 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ILoginWithEmailAndPasswordAuthService } from '../interface';
 import { AuthDto } from '../dto';
 import {
-  TokenReturnInterface,
   SignTokenPayloadProps,
+  TokenReturnInterface,
 } from '../token/interface';
 import { User } from '@prisma/client';
-import { GetUserService } from '../../user/services';
 import { TokenService } from '../token/token.service';
 import { RefreshTokenService } from '../refresh_token/refresh_token.service';
 
 import * as argon from 'argon2';
+import { IGetUserService } from '../../user/interface';
 
 @Injectable()
 export class LoginAuthService implements ILoginWithEmailAndPasswordAuthService {
   constructor(
-    private getUserService: GetUserService,
+    @Inject(IGetUserService) private readonly getUserService: IGetUserService,
     private tokenService: TokenService,
     private refreshTokenService: RefreshTokenService
   ) {}

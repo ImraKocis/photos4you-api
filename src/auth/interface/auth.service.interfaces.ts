@@ -17,7 +17,7 @@ import {
 } from '../../subscription/interface';
 
 // Interface Segregation Principle (ISP)
-export interface IRegisterAuthAbstract {
+export interface IRegisterAuthService {
   getUserByEmail(email: string): Promise<UserModal | null>;
   createUserSubscription(data: CreateSubscriptionInterface): Promise<void>;
   signTokens(data: SignTokenPayloadProps): Promise<TokenReturnInterface>;
@@ -27,6 +27,8 @@ export interface IRegisterAuthAbstract {
   ): Promise<SubscriptionData>;
 }
 
+export const IRegisterAuthService = Symbol('IRegisterAuthService');
+
 export interface IRegisterWithEmailAndPasswordAuthService {
   register(dto: AuthRegisterDto): Promise<TokenReturnInterface | null>;
   hashUserPassword(password: string): Promise<string>;
@@ -34,6 +36,9 @@ export interface IRegisterWithEmailAndPasswordAuthService {
     data: CreateUserWithEmailAndPassword
   ): Promise<UserCreateReturnModal>;
 }
+export const IRegisterWithEmailAndPasswordAuthService = Symbol(
+  'IRegisterWithEmailAndPasswordAuthService'
+);
 
 export interface IRegisterWithProviderAuthService {
   register(dto: AuthWithProviderDto): Promise<TokenReturnInterface | null>;
@@ -41,7 +46,9 @@ export interface IRegisterWithProviderAuthService {
     data: CreateUserWithProvider
   ): Promise<UserCreateReturnModal>;
 }
-
+export const IRegisterWithProviderAuthService = Symbol(
+  'IRegisterWithProviderAuthService'
+);
 export interface ILoginWithEmailAndPasswordAuthService {
   login(dto: AuthDto): Promise<TokenReturnInterface>;
   checkPassword(passwordHash: string, password: string): Promise<boolean>;
@@ -49,8 +56,11 @@ export interface ILoginWithEmailAndPasswordAuthService {
   updateRefreshToken(userId: number, refreshToken: string): Promise<void>;
   getUserByEmail(email: string): Promise<User>;
 }
-
+export const ILoginWithEmailAndPasswordAuthService = Symbol(
+  'ILoginWithEmailAndPasswordAuthService'
+);
 export interface IProviderAuthService {
   googleLogin(req: any): Promise<GoogleProfile>;
   githubLogin(req: any): Promise<GithubProfile>;
 }
+export const IProviderAuthService = Symbol('IProviderAuthService');

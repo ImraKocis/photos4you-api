@@ -20,6 +20,14 @@ import {
   RegisterWithProviderAuthService,
 } from './services';
 import { CreateUserService, GetUserService } from '../user/services';
+import { ICreateUserService, IGetUserService } from '../user/interface';
+import {
+  ILoginWithEmailAndPasswordAuthService,
+  IProviderAuthService,
+  IRegisterAuthService,
+  IRegisterWithEmailAndPasswordAuthService,
+  IRegisterWithProviderAuthService,
+} from './interface';
 
 @Module({
   imports: [
@@ -29,15 +37,36 @@ import { CreateUserService, GetUserService } from '../user/services';
     CacheModule,
   ],
   providers: [
-    RegisterAuthService,
-    RegisterWithProviderAuthService,
-    RegisterWithEmailAndPasswordAuthService,
-    LoginAuthService,
-    ProviderAuthService,
+    {
+      provide: IRegisterAuthService,
+      useClass: RegisterAuthService,
+    },
+    {
+      provide: IRegisterWithProviderAuthService,
+      useClass: RegisterWithProviderAuthService,
+    },
+    {
+      provide: IRegisterWithEmailAndPasswordAuthService,
+      useClass: RegisterWithEmailAndPasswordAuthService,
+    },
+    {
+      provide: ILoginWithEmailAndPasswordAuthService,
+      useClass: LoginAuthService,
+    },
+    {
+      provide: IProviderAuthService,
+      useClass: ProviderAuthService,
+    },
+    {
+      provide: IGetUserService,
+      useClass: GetUserService,
+    },
+    {
+      provide: ICreateUserService,
+      useClass: CreateUserService,
+    },
     GoogleStrategy,
     GithubStrategy,
-    GetUserService,
-    CreateUserService,
     SubscriptionService,
     UploadSizeService,
     DailyLimitService,

@@ -1,22 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { IRegisterWithProviderAuthService } from '../interface';
+import { Inject, Injectable } from '@nestjs/common';
+import {
+  IRegisterAuthService,
+  IRegisterWithProviderAuthService,
+} from '../interface';
 import {
   CreateUserWithProvider,
+  ICreateUserService,
   UserCreateReturnModal,
 } from 'src/user/interface';
 import { TokenReturnInterface } from '../token/interface';
 import { AuthWithProviderDto } from '../dto';
-import { RegisterAuthService } from './register.auth.service';
-import { CreateUserService } from '../../user/services';
 
 @Injectable()
 export class RegisterWithProviderAuthService
   implements IRegisterWithProviderAuthService
 {
   constructor(
-    private registerAuthService: RegisterAuthService,
-    private createUserService: CreateUserService
+    @Inject(IRegisterAuthService)
+    private readonly registerAuthService: IRegisterAuthService,
+    @Inject(ICreateUserService)
+    private readonly createUserService: ICreateUserService
   ) {}
+
   async register(dto: AuthWithProviderDto): Promise<TokenReturnInterface> {
     const subscriptionData =
       await this.registerAuthService.getSubscriptionData('FREE');

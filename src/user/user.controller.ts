@@ -4,6 +4,7 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  Inject,
   Param,
   Patch,
   Query,
@@ -16,26 +17,29 @@ import {
   GetUser,
 } from '../auth/decorator';
 import { Role, User } from '@prisma/client';
-import { UserModal } from './interface';
+import {
+  IDeleteUserService,
+  IGetUserService,
+  IUpdateUserService,
+  IUpdateUserSubscriptionService,
+  UserModal,
+} from './interface';
 import {
   UserUpdatePersonalDataDto,
   UserUpdateRoleDto,
   UserUpdateSubscriptionDto,
 } from './dto';
-import {
-  DeleteUserService,
-  GetUserService,
-  UpdateUserService,
-  UpdateUserSubscriptionUserService,
-} from './services';
 
 @Controller('user')
 export class UserController {
   constructor(
-    private getUserService: GetUserService,
-    private updateUserService: UpdateUserService,
-    private updateUserSubscriptionService: UpdateUserSubscriptionUserService,
-    private deleteUserService: DeleteUserService
+    @Inject(IGetUserService) private readonly getUserService: IGetUserService,
+    @Inject(IUpdateUserService)
+    private readonly updateUserService: IUpdateUserService,
+    @Inject(IUpdateUserSubscriptionService)
+    private readonly updateUserSubscriptionService: IUpdateUserSubscriptionService,
+    @Inject(IDeleteUserService)
+    private readonly deleteUserService: IDeleteUserService
   ) {}
 
   @UseGuards(JwtGuard)
@@ -49,7 +53,8 @@ export class UserController {
   getUserById(@Param('id') id: string): Promise<UserModal | null> {
     return this.getUserService.getUserById({ id: Number(id) });
   }
-  @Get('email')
+
+  @Get('find/email')
   getUserByEmail(@Query() data: { email: string }) {
     return this.getUserService.getUserByEmail(data.email);
   }

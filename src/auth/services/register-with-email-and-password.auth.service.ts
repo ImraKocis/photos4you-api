@@ -1,23 +1,27 @@
 import {
   CreateUserWithEmailAndPassword,
+  ICreateUserService,
   UserCreateReturnModal,
 } from 'src/user/interface';
 import { TokenReturnInterface } from '../token/interface';
-import { IRegisterWithEmailAndPasswordAuthService } from '../interface';
+import {
+  IRegisterAuthService,
+  IRegisterWithEmailAndPasswordAuthService,
+} from '../interface';
 import { AuthRegisterDto } from '../dto';
-import { Injectable } from '@nestjs/common';
-import { RegisterAuthService } from './register.auth.service';
+import { Inject, Injectable } from '@nestjs/common';
 
 import * as argon from 'argon2';
-import { CreateUserService } from '../../user/services';
 
 @Injectable()
 export class RegisterWithEmailAndPasswordAuthService
   implements IRegisterWithEmailAndPasswordAuthService
 {
   constructor(
-    private registerAuthService: RegisterAuthService,
-    private createUserService: CreateUserService
+    @Inject(IRegisterAuthService)
+    private readonly registerAuthService: IRegisterAuthService,
+    @Inject(ICreateUserService)
+    private readonly createUserService: ICreateUserService
   ) {}
   async hashUserPassword(password: string): Promise<string> {
     return await argon.hash(password);

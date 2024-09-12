@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
-import { UploadSizeService } from '../upload_size/upload_size.service';
 import { DailyLimitService } from '../daily_limit/daily_limit.service';
 import { SubscriptionService } from '../subscription/subscription.service';
 import {
@@ -10,16 +9,27 @@ import {
   UpdateUserService,
   UpdateUserSubscriptionUserService,
 } from './services';
+import {
+  ICreateUserService,
+  IDeleteUserService,
+  IGetUserService,
+  IUpdateUserService,
+  IUpdateUserSubscriptionService,
+} from './interface';
+import { UploadSizeService } from '../upload_size/upload_size.service';
 
 @Module({
   providers: [
-    GetUserService,
-    UpdateUserService,
-    UpdateUserSubscriptionUserService,
-    CreateUserService,
-    DeleteUserService,
-    UploadSizeService,
+    { provide: IGetUserService, useClass: GetUserService },
+    { provide: IUpdateUserService, useClass: UpdateUserService },
+    {
+      provide: IUpdateUserSubscriptionService,
+      useClass: UpdateUserSubscriptionUserService,
+    },
+    { provide: ICreateUserService, useClass: CreateUserService },
+    { provide: IDeleteUserService, useClass: DeleteUserService },
     DailyLimitService,
+    UploadSizeService,
     SubscriptionService,
   ],
   controllers: [UserController],
